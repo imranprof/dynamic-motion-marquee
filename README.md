@@ -70,7 +70,7 @@ Example:
 
 ```javascript
 if (width < 480) {
-  return { spacing: 1 / items.length, duration: 8, scale: 0.4, itemWidth: "70px" };
+  return { spacing: 1 / items.length, duration: 8, scale: 0.4, itemWidth: "100px" };
 }
 ```
 
