@@ -27,11 +27,11 @@
       justify-content: center;
     }
 
-    .slider-wrapper {
+    .motion-slider-wrapper {
       position: relative;
       width: 100%;
-      max-width: 1200px;
-      height: 200px;
+      max-width: 1416px;
+      height: 120px;
       overflow: hidden;
     }
 
@@ -43,10 +43,8 @@
 
 
 
-    .slide-item {
+    .motion-slide-item {
       position: absolute;
-      /* width: 100px; */
-      height: 36px;
       padding: 6px 12px;
       background: rgba(0, 0, 0, 0.12);
       border-radius: 40px;
@@ -54,8 +52,27 @@
       align-items: center;
       justify-content: center;
       color: rgba(26, 26, 26, 1);
-      font-size: 14px;
+      font-size: 12px;
       border: 1px solid rgba(136, 50, 55, 0.16);
+      white-space: nowrap;
+      text-transform: uppercase;
+      font-family: Ppneuemontreal, Arial, sans-serif;
+      font-weight: 700;
+      /* letter-spacing: 0.77px; */
+    }
+
+    @media (max-width: 768px) {
+      .motion-slide-item {
+        font-size: 11px;
+        padding: 4px 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .motion-slide-item {
+        font-size: 10px;
+        padding: 3px 8px;
+      }
     }
 
     .midside-item {
@@ -78,7 +95,7 @@
 
 <body>
 
-  <div class="slider-wrapper">
+  <div class="motion-slider-wrapper">
 
     <!-- SVG PATH -->
     <svg id="slideSvg" viewBox="0 0 1400 80">
@@ -98,45 +115,96 @@
     </svg>
 
     <!-- SLIDE ITEMS -->
-    <div class="slide-item">Sculptra</div>
-    <div class="slide-item">Neurotoxin</div>
-    <div class="slide-item">Exosomes</div>
-    <div class="slide-item midside-item">XERF ✦ New</div>
-    <div class="slide-item mid-item">Radiesse HD</div>
-    <div class="slide-item midside-item">Secretomes</div>
-    <div class="slide-item">Hair PRP</div>
-    <div class="slide-item">PDRN</div>
-    <div class="slide-item">Microneedling</div>
+    <div class="motion-slide-item">Sculptra</div>
+    <div class="motion-slide-item">Neurotoxin</div>
+    <div class="motion-slide-item">Exosomes</div>
+    <div class="motion-slide-item midside-item">XERF ✦ New</div>
+    <div class="motion-slide-item mid-item">Radiesse HD</div>
+    <div class="motion-slide-item midside-item">Secretomes</div>
+    <div class="motion-slide-item">Hair PRP</div>
+    <div class="motion-slide-item">PDRN</div>
+    <div class="motion-slide-item">Microneedling</div>
 
   </div>
 
   <script>
     gsap.registerPlugin(MotionPathPlugin);
 
-    const items = document.querySelectorAll(".slide-item");
+    const items = document.querySelectorAll(".motion-slide-item");
     const path = document.querySelector("#motionPath");
 
-    const total = items.length;
-    const spacing = 1 / total;
-    console.log(spacing);
+    let animations = [];
 
-    items.forEach((item, i) => {
+    // responsive
+    function getConfig() {
+      const width = window.innerWidth;
 
-      // infinite loop animation
-      gsap.to(item, {
-        duration: 15,
-        repeat: -1,
-        ease: "none",
-        motionPath: {
-          path: path,
-          align: path,
-          alignOrigin: [0.5, 0.5],
-          start: i * spacing,
-          end: i * spacing + 1,
-          autoRotate: true
-        }
+      if (width < 480) {
+        return { spacing: 1 / items.length, duration: 8, scale: 0.4, itemWidth: "100px" };
+      }
+
+      if (width < 768) {
+        return { spacing: 1 / items.length, duration: 10, scale: 0.6, itemWidth: "100px" };
+      }
+
+      if (width < 1024) {
+        return { spacing: 1 / items.length, duration: 12, scale: 0.70, itemWidth: "110px" };
+      }
+
+      if (width < 1440) {
+        return { spacing: 1 / items.length, duration: 12, scale: 0.85, itemWidth: "125px" };
+      }
+
+      return { spacing: 1 / items.length, duration: 15, scale: 1, itemWidth: "136px" };
+    }
+
+    // init
+    function initSlider() {
+
+      animations.forEach(anim => anim.kill());
+      animations = [];
+
+      const { spacing, duration, scale, itemWidth } = getConfig();
+
+      items.forEach((item, i) => {
+
+        gsap.set(item, {
+          x: 0,
+          y: 0,
+          scale: scale,
+          width: itemWidth,
+          transformOrigin: "center center"
+        });
+
+        const tween = gsap.to(item, {
+          duration: duration,
+          repeat: -1,
+          ease: "none",
+          motionPath: {
+            path: path,
+            align: path,
+            alignOrigin: [0.5, 0.5],
+            start: i * spacing,
+            end: i * spacing + 1,
+            autoRotate: true
+          }
+        });
+
+        animations.push(tween);
       });
+    }
 
+    initSlider();
+
+    // resize handler
+    let resizeTimeout;
+
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimeout);
+
+      resizeTimeout = setTimeout(() => {
+        initSlider();
+      }, 200);
     });
   </script>
 
